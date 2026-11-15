@@ -3,7 +3,7 @@
 This is an experimental native BLE-MIDI peripheral build for the FM-1, based on
 CoralFlower 0.7.1. On 2026-11-15 it was flashed onto a physical FM-1 and
 exchanged MIDI in both directions with a Windows Bluetooth client. WIDI Bud Pro
-auto-connect has not passed hardware testing. It remains an experimental build.
+group reconnection also passed a subsequent software-reboot test. It remains an experimental build.
 
 ## What is implemented
 
@@ -38,10 +38,12 @@ One-time setup, following [CME's Bud Pro guide](https://www.cme-pro.com/widi-bud
 4. Power-cycle both devices. The Bud should reconnect to the same FM-1 automatically.
    Use the Bud Pro's USB MIDI port in Ableton; OS Bluetooth pairing is not needed.
 
-The group is stored on the **Bud Pro**, not the FM-1. This code cannot configure its
-group remotely. In the 2026-11-15 test, the attached Bud Pro did not establish a
-connection and its USB test notes did not reach the FM-1. Its role/group settings
-were not verified; this does not isolate configuration from interoperability.
+The group is stored on the **Bud Pro**, not the FM-1. A phone is not required:
+[CME's SysEx reference](https://cme-pro.com/midi-implementation/WIDI-Bud-Pro.html)
+documents configuration over MIDI. USB requests successfully saved the verified
+H4 and FM-1 addresses in slots 1 and 2 (settings 7 and 8), then selected central
+role (setting 6 = 2). Back up settings and identify each device before writing.
+The H4 was already a forced peripheral. The flasher does not automate this setup.
 Another computer/phone can occupy the FM-1's single BLE link; disconnect it first.
 
 ## Build
@@ -96,4 +98,17 @@ Source versions and licensing: [BLUETOOTH-SOURCES.md](BLUETOOTH-SOURCES.md).
   succeeded afterward. This was not a physical power-cycle test.
 - With the PC BLE client disconnected, WIDI USB note-on/off did not advance the
   FM-1 BLE receive counter. The FM-1 remained advertising, not connected.
-  WIDI auto-connect and sustained performance are not verified.
+  This initial failure was resolved by the group setup described below.
+
+### WIDI group follow-up, same day
+
+Read-only USB requests identified the Bud and verified its connected peer against
+the H4 WIDI Core serial/address reply. The Bud initially used auto role and had
+four unused group slots. After saving the two addresses and central role, both
+connected. Readback after a Bud software reboot confirmed the settings persisted.
+H4 reconnected first; FM-1 was still scanning at the first 12-second check but
+connected at the later check. Three test note-on/off pairs sent through Bud USB
+produced the FM-1's expected transposed note-on/off replies, both before and after
+the reboot. FM-1 was not connected by USB during this test. No firmware change was
+needed. Private configuration backups and raw logs remain local under build/.
+Physical power-cycle, both startup orders and prolonged load remain untested.
