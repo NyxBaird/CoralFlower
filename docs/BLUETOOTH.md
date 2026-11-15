@@ -1,8 +1,9 @@
 # CoralFlower Bluetooth MIDI fork
 
 This is an experimental native BLE-MIDI peripheral build for the FM-1, based on
-CoralFlower 0.7.1. It has compiled and passed software tests, but has **not yet
-been flashed or radio-tested on a physical FM-1**. It is not a verified release.
+CoralFlower 0.7.1. On 2026-11-15 it was flashed onto a physical FM-1 and
+exchanged MIDI in both directions with a Windows Bluetooth client. WIDI Bud Pro
+auto-connect has not passed hardware testing. It remains an experimental build.
 
 ## What is implemented
 
@@ -38,7 +39,9 @@ One-time setup, following [CME's Bud Pro guide](https://www.cme-pro.com/widi-bud
    Use the Bud Pro's USB MIDI port in Ableton; OS Bluetooth pairing is not needed.
 
 The group is stored on the **Bud Pro**, not the FM-1. This code cannot configure its
-group remotely. Reconnection and MIDI exchange with a real Bud Pro remain untested.
+group remotely. In the 2026-11-15 test, the attached Bud Pro did not establish a
+connection and its USB test notes did not reach the FM-1. Its role/group settings
+were not verified; this does not isolate configuration from interoperability.
 Another computer/phone can occupy the FM-1's single BLE link; disconnect it first.
 
 ## Build
@@ -72,9 +75,25 @@ are refused. Interrupted updates can be retried with the same file.
 
 ## Validation still required on hardware
 
-Install/restart; radio startup on the actual flash chip; WIDI learn/reconnect in
-either power-on order; bidirectional notes/CC/bend/clock; sustained chords plus
+WIDI learn/reconnect in either power-on order; physical power-cycle recovery; bidirectional notes/CC/bend/clock; sustained chords plus
 sequencer/effects without audio glitches; link loss without stuck notes; USB update
 from the BLE build back to USB-only. Do not interpret host tests as these results.
 
 Source versions and licensing: [BLUETOOTH-SOURCES.md](BLUETOOTH-SOURCES.md).
+
+## Hardware observations â€” 2026-11-15
+
+- Installed `0.7.1-btdev` using the USB command-line installer; running firmware
+  identity confirmed after the update. The browser flasher was not used for this test.
+- Before/after backup object payloads matched exactly (only firmware label and
+  backup creation time differed). Private backups remain local.
+- Windows BLE discovery received the standard MIDI service advertisement.
+- A Windows Bleak client connected, subscribed to MIDI notifications, sent a
+  note-on/off pair, and received the instrument's outgoing note-on/off pair.
+  The firmware's BLE receive counter advanced by two and MIDI-ready became true.
+- On client disconnect the FM-1 returned to advertising. A supported USB software
+  restart reset uptime and preserved the BLE address; another BLE MIDI exchange
+  succeeded afterward. This was not a physical power-cycle test.
+- With the PC BLE client disconnected, WIDI USB note-on/off did not advance the
+  FM-1 BLE receive counter. The FM-1 remained advertising, not connected.
+  WIDI auto-connect and sustained performance are not verified.

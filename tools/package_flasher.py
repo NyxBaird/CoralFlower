@@ -24,7 +24,7 @@ def main():
         for path in packages:
             archive.write(path, 'firmware-files/' + path.name)
         archive.writestr('START-HERE.txt',
-            'Experimental CoralFlower Bluetooth MIDI build. Not hardware validated.\n'
+            'Experimental CoralFlower Bluetooth MIDI build. Initial PC BLE test passed; WIDI auto-connect unverified.\n'
             'Extract this ZIP, then double-click Flash-CoralFlower.cmd (Python 3 required).\n'
             'Use Chrome or Edge. Choose a .fwsc from firmware-files/.\n'
             'btdev has Bluetooth; usbdev is the USB-only fallback.\n'
