@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CoralFlower · FM-1 Flasher</title><link rel="stylesheet" href="style.css"></head>
+<body><main>
+<header><a href="../">CORALFLOWER</a><span>FM-1 / USB UPDATER</span></header>
+<section class="intro"><p class="eyebrow">LESS FRICTION. MORE MUSIC.</p><h1>A fresh start<br>for your FM-1.</h1>
+<p>Choose your firmware. Connect over USB. We’ll check the file, save a backup where supported, and guide the update.</p></section>
+<div class="grid"><section class="card">
+<div class="number">01 / FIRMWARE</div><h2>Choose a firmware file</h2>
+<label class="drop" id="drop">Drop a .fwsc here<span>or browse your computer</span><input id="file" type="file" accept=".fwsc" aria-label="Firmware package"></label>
+<p id="package" role="status">CoralFlower or the original M-VAVE V15 package.</p><code id="hash"></code>
+<p class="note">Bluetooth builds are experimental until tested on your hardware. This tool flashes over USB.</p>
+</section><section class="card">
+<div class="number">02 / CONNECT & INSTALL</div><h2>One instrument. One cable.</h2>
+<p>Connect just your FM-1 with a USB data cable. Close Ableton and other MIDI apps.</p>
+<button id="connect" class="secondary">Check connection</button><p id="device" role="status">Not connected yet.</p>
+<label class="ack"><input type="checkbox" id="ack"> If my current firmware cannot back up sounds, I understand they may be lost.</label>
+<button id="install" disabled>Install firmware <span>↗</span></button>
+<p class="note">Supported backups are saved before writing. A failed backup stops the update.</p>
+</section></div>
+<section class="card status"><div class="status-head"><h2 id="state" role="status" aria-live="polite">Ready when you are.</h2><span id="elapsed"></span></div>
+<ol id="steps"><li>Identify</li><li>Back up</li><li>Verify</li><li>Write</li><li>Restart</li></ol>
+<progress id="progress" max="100" value="0" aria-label="Update progress"></progress>
+<p id="detail">Nothing has been written to your FM-1.</p>
+<div id="recovery" hidden><strong>Need to recover?</strong><p>Keep the same file selected. Reconnect USB and retry. If the unit stays dark, consult the <a href="https://github.com/Quixotic7/MvaveFM1Unbricker" target="_blank" rel="noopener">FM-1 recovery guide</a>.</p></div>
+<details><summary>Update log</summary><pre id="log"></pre></details><button id="save-log" class="text">Save log</button>
+</section><footer>Local file checks. No firmware uploads. <a href="../#backup">Backup & restore tools</a> · GPL-3.0</footer>
+</main><script type="module" src="app.js"></script></body></html>

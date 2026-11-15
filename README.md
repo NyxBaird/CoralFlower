@@ -1,5 +1,12 @@
 # CoralFlower
 
+## NyxBaird fork: Bluetooth MIDI + flasher
+
+Experimental native BLE MIDI and a guided local USB flasher. See
+[setup, WIDI Bud Pro auto-connect, build instructions and hardware-test limits](docs/BLUETOOTH.md).
+On Windows, launch `Flash-CoralFlower.cmd`. The upstream description follows.
+
+
 **Your M-VAVE FM-1, made for chords.** CoralFlower is free firmware for the FM-1. Press a chord key, and every note
 you play becomes a whole chord, with a bass underneath. While you play, a pixel flower grows from your chords.
 

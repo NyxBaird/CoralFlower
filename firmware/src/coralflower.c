@@ -25,6 +25,9 @@
 #ifndef FELUCCA_UAC
 #define FELUCCA_UAC 0            /* USB audio recording: later (the settings that switch it are not here yet) */
 #endif
+#ifndef CF_BLE
+#define CF_BLE 0
+#endif
 #ifndef FELUCCA_UART
 #define FELUCCA_UART 1
 #endif
@@ -138,7 +141,19 @@ static void cf_fx_chain(int32_t *l, int32_t *r, uint32_t n);
 #include "cf_fx.c"                        /* the effects chain (cr_fx.c's delay, reverb and chorus in it) */
 
 /* ------------------------------------------------------------ MIDI --- */
+#if CF_BLE
+#define midi_out_event cf_usb_out_event
+#endif
 #include "usb.c"
+#if CF_BLE
+#undef midi_out_event
+#include "cf_ble.c"
+static void midi_out_event(uint32_t pkt)
+{
+    cf_usb_out_event(pkt);
+    cf_ble_send(pkt);
+}
+#endif
 #if FELUCCA_UART
 #include "midi_uart.c"
 #endif
@@ -164,6 +179,9 @@ static void mix_block(int32_t *out, uint32_t n)
 #include "fm1_flash.h"
 #include "storage_hw.c"
 #include "storage.c"
+#if CF_BLE
+#include "cf_ble_identity.c"
+#endif
 #endif
 #include "cr_bank.c"             /* upreset.c (32 user sounds, fm6_bank.c), the pools per engine */
 #include "flora/flora_canvas.c"

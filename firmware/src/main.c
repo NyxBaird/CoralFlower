@@ -122,6 +122,9 @@ void fm1_timer5_irq(void)
     if (owed & 2u)
         uart_midi_poll();
 #endif
+#if CF_BLE
+    cf_ble_poll_input();
+#endif
     owed = 0;
 }
 extern void isr_timer5(void);
@@ -288,6 +291,9 @@ static void fm1_main(void)
         master_poll();
     }
     lcd_fill(0, 0, 240, 240, T_BG);
+#if CF_BLE
+    if (!cr_safe && !cf_ble_start()) ui_message("BLUETOOTH UID ERROR");
+#endif
 
     for (;;) {
         uint32_t m = fm1_ms;
@@ -344,6 +350,9 @@ static void fm1_main(void)
         ota_service();                                  /* M-UPGRADE handshake */
         if (usb.ota_req) {                              /* M-UPGRADE upgrade command */
             usb.ota_req = 0;
+#if CF_BLE
+            cf_ble_stop();
+#endif
             panic_req = (1u << NTRK) - 1u;               /* every track (bit per track) */
             if (flash_ok)
                 ota_session();                          /* returns only if nothing was committed */
@@ -352,6 +361,9 @@ static void fm1_main(void)
         }
 #endif
         if (usb.uboot_req) {                            /* SysEx F0 22 24 35 7D F7 from the host */
+#if CF_BLE
+            cf_ble_stop();
+#endif
             fm1_audio_stop();
             lcd_fill(0, 0, 240, 240, T_BG);
             draw_text_box(0, 110, 240, &AF_M, "UBOOT (USB)", T_THEME, 1);

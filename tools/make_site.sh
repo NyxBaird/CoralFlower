@@ -22,6 +22,8 @@ cp web/fonts/*.woff web/fonts/OFL-*.txt "$OUT/fonts/"
 cp tools/emu/web/favicon.svg tools/emu/web/favicon-32.png tools/emu/web/apple-touch-icon.png "$OUT/"
 cp docs/images/*.png docs/images/*.gif "$OUT/images/"
 cp web/install/index.html "$OUT/install/"
+mkdir -p "$OUT/flasher"
+cp web/flasher/* "$OUT/flasher/"
 cp "$EMU/index.html" "$EMU/emu.js" "$EMU/keymap.js" "$EMU/worklet.js" "$EMU/coralflower.wasm" "$OUT/play/"
 STAMP=$(cat web/site.css | shasum | cut -c1-10)
 # (sed -i.bak, then the .bak removed: the one form both BSD sed on macOS and GNU sed on the CI runner take)

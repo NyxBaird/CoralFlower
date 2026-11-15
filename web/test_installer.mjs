@@ -23,6 +23,7 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
 import vm from "node:vm";
+import { fileURLToPath } from "node:url";
 import { Package, logicalImage, productOf, crc16, STOCK_V15_SIZE } from "./fm1pkg.js";
 import { pack7, unpack7, classifyFirmware, refusalText, CF_EARLY } from "./fm1ota.js";
 import { bkU32, bkR32, bkPack, bkUnpack, bkCrc, CR_BACKUP_IDS, CF_BACKUP_IDS, CF_EDIT_IDS, BACKUP_IDS, backupFamily, backupFileName, objectNames, readBackup } from "./fm1backup.js";
@@ -30,7 +31,7 @@ import { bkU32, bkR32, bkPack, bkUnpack, bkCrc, CR_BACKUP_IDS, CF_BACKUP_IDS, CF
 let failed = 0;
 const ok = (cond, what) => { console.log(`${what.padEnd(100)} ${cond ? "ok" : "FAIL"}`); if (!cond) failed++; };
 const eq = (a, b) => a.length === b.length && a.every((v, i) => v === b[i]);
-const HERE = new URL(".", import.meta.url).pathname;
+const HERE = fileURLToPath(new URL(".", import.meta.url));
 const ROOT = join(HERE, "..");
 const count = (s, sub) => s.split(sub).length - 1;
 const html = readFileSync(join(HERE, "index.html"), "utf8");

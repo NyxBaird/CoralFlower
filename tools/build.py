@@ -256,9 +256,9 @@ def build_stub():
 # ---- app
 
 def build_app(stub):
-    flags = [*CFLAGS, "-Ifirmware/hal", "-Ifirmware/src", "-Ibuild/gen"]
+    flags = [*CFLAGS, "-Ifirmware/hal", "-Ifirmware/hal/radio", "-Ifirmware/ble", "-Ifirmware/src", "-Ibuild/gen"]
     for flag in ("FELUCCA_FLASH", "FELUCCA_OTA", "FELUCCA_OTA_DRYRUN", "FELUCCA_OTA_RAMONLY", "FELUCCA_CDC",
-                 "FELUCCA_UART", "FELUCCA_UAC", "FELUCCA_ICONS", "FELUCCA_KEYCAPS", "FELUCCA_SLICE",
+                 "CF_BLE", "FELUCCA_UART", "FELUCCA_UAC", "FELUCCA_ICONS", "FELUCCA_KEYCAPS", "FELUCCA_SLICE",
                  "FELUCCA_SLICER", "FELUCCA_FM4", "FELUCCA_SAMPLE", "FELUCCA_GRAIN", "FELUCCA_DRUM", "FELUCCA_SEQ",
                  "FELUCCA_CZ", "FELUCCA_QUAD", "FELUCCA_ANALOG", "FELUCCA_PHASE", "FELUCCA_LOFI", "FELUCCA_VOICE",
                  "FELUCCA_TRIO", "FELUCCA_NOISE", "FELUCCA_PHYS"):
@@ -442,10 +442,13 @@ def main():
     global VERSION
     ap = argparse.ArgumentParser()
     ap.add_argument("--release", metavar="X.Y", help=f"release build: identity {PRODUCT}, version string CoralFlower X.Y")
+    ap.add_argument("--ble", action="store_true", help="experimental native Bluetooth MIDI")
     ap.add_argument("--sdk", type=Path, help="JieLi AC79 SDK checkout (default: $AC79_SDK)")
     ap.add_argument("--gen-only", action="store_true",
                     help="only the generated headers, into build/gen (no toolchain, no SDK)")
     a = ap.parse_args()
+    if a.ble:
+        os.environ["CF_BLE"] = "1"
     if a.gen_only:
         generate()
         print(f"generated {GEN}: {', '.join(sorted(p.name for p in GEN.glob('*.h')))}")

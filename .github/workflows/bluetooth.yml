@@ -1,0 +1,46 @@
+name: experimental-bluetooth
+on:
+  workflow_dispatch:
+  push:
+    branches: [codex/bluetooth-midi-flasher]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.12'
+      - name: Dependencies and compiler
+        run: |
+          python -m pip install Pillow==11.1.0 fonttools==4.66.1
+          sh tools/get_toolchain.sh "$HOME/.jieli"
+      - name: MIDI and reconnect tests
+        run: |
+          mkdir -p build/host
+          cc -std=c99 -Wall -Wextra -Werror -Itests/ble_fake tests/cf_ble_test.c -o build/host/routing
+          cc -std=c99 -Wall -Wextra -Werror tests/cf_ble_address_test.c -o build/host/address
+          cc -std=c99 -O2 -Wall -Wno-unused-function tests/cf_ble_reconnect_test.c -o build/host/reconnect
+          cc -std=c99 -O2 tests/ble_midi_test.c -o build/host/codec
+          build/host/routing
+          build/host/address
+          build/host/reconnect
+          build/host/codec
+      - name: Build Bluetooth and USB-only packages
+        run: |
+          sh build.sh --ble --release 0.7.1-btdev
+          sh build.sh --release 0.7.1-usbdev
+      - name: Flasher validation
+        run: |
+          node web/flasher/test.mjs build/coralflower-0.7.1-btdev.fwsc
+          node web/test_installer.mjs
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: experimental-firmware-not-hardware-validated
+          path: |
+            build/release-0.7.1-btdev/
+            build/release-0.7.1-usbdev/

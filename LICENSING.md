@@ -58,3 +58,9 @@ by any of them.
 
 Contributions are welcome under GPL-3.0-only. Contact: iambemoli@gmail.com, Telegram channel
 <https://t.me/ficusficusov>.
+
+## Bluetooth additions in the NyxBaird fork
+
+The vendored stack and radio HAL use their offered GPL-3.0-only option.
+See [source provenance](docs/BLUETOOTH-SOURCES.md). New integration and flasher
+code are GPL-3.0-only. Original notices remain in every vendored file.
