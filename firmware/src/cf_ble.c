@@ -3,7 +3,9 @@
  * still the sole producer of the shared MIDI input ring. No OTA over BLE. */
 #define BLE_DEVICE_NAME "CoralFlower"
 #define BLE_DIAG 0
-#define BLE_CENTRAL 0
+#define BLE_CENTRAL 3
+#define BLE_SCAN_N 8
+#define BLE_SCAN_RING 4
 #define BLE_SMP_LEGACY 0
 #include "ble_stack.c"
 
@@ -112,4 +114,5 @@ static void cf_ble_stop(void) /* before staging/jumping to the USB updater */
     cb_lost = 1;
     cb_started = 0;
 }
+#include "cf_ble_target.c"
 #endif

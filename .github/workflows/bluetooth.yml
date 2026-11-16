@@ -26,21 +26,23 @@ jobs:
           cc -std=c99 -Wall -Wextra -Werror tests/cf_ble_address_test.c -o build/host/address
           cc -std=c99 -O2 -Wall -Wno-unused-function tests/cf_ble_reconnect_test.c -o build/host/reconnect
           cc -std=c99 -O2 tests/ble_midi_test.c -o build/host/codec
+          cc -std=c99 -Wall -Wextra -Wno-unused-function tests/cf_ble_target_test.c -o build/host/target
+          build/host/target
           build/host/routing
           build/host/address
           build/host/reconnect
           build/host/codec
       - name: Build Bluetooth and USB-only packages
         run: |
-          sh build.sh --ble --release 0.7.1-btdev
-          sh build.sh --release 0.7.1-usbdev
+          sh build.sh --ble --release 0.7.2-btdev
+          sh build.sh --release 0.7.2-usbdev
       - name: Flasher validation
         run: |
-          node web/flasher/test.mjs build/coralflower-0.7.1-btdev.fwsc
+          node web/flasher/test.mjs build/coralflower-0.7.2-btdev.fwsc
           node web/test_installer.mjs
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: experimental-firmware-not-hardware-validated
           path: |
-            build/release-0.7.1-btdev/
-            build/release-0.7.1-usbdev/
+            build/release-0.7.2-btdev/
+            build/release-0.7.2-usbdev/

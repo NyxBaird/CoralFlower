@@ -12,7 +12,7 @@ def main():
     root = Path(__file__).resolve().parents[1]
     out = root / 'build' / 'CoralFlower-BT-experimental.zip'
     source = subprocess.check_output(['git', 'archive', '--format=zip', 'HEAD'], cwd=root)
-    packages = [root / 'build' / f'coralflower-0.7.1-{kind}dev.fwsc' for kind in ('bt','usb')]
+    packages = [root / 'build' / f'coralflower-0.7.2-{kind}dev.fwsc' for kind in ('bt','usb')]
     for path in packages:
         if not path.is_file():
             raise SystemExit(f'Build both variants first: missing {path.name}')

@@ -424,6 +424,20 @@ static void con_exec(const char *p)
 {
     if (con_word(&p, "help") || con_word(&p, "?"))
         con_puts("status  cpu  dbg  boot  inp  crash  params  memr ADDR [LEN]  flr OFF [LEN]  uboot yes\r\n");
+#if CF_BLE
+    else if (con_word(&p, "bt")) {
+        if (con_word(&p, "widi")) cs.bt_target = 0;
+        else if (con_word(&p, "op1")) cs.bt_target = 1;
+        else if (con_word(&p, "off")) cs.bt_target = 2;
+        cf_ble_target_poll(cs.bt_target);
+        con_kv("target", cs.bt_target);
+        con_puts(cf_ble_status()); con_puts("\r\n");
+        con_kv("ready", cb_ready); con_kv("rx", cb_rw); con_kv("tx", cb_tw);
+        con_kv("central_state", ble_central_state());
+        con_kv("failure", ble_central_fail()); con_kv("code", ble_central_code());
+        con_kv("reports", cb_scan.reports);
+    }
+#endif
     else if (con_word(&p, "cpu"))
         con_cpu();
     else if (con_word(&p, "status"))

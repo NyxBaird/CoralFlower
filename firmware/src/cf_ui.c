@@ -361,6 +361,15 @@ static void ui_knob_info(int k, cf_knob_t *o)
             if (k == 2) { kfmt(o->name, 12, "LAYER CH"); kint(o->val, cs.ch_layer + 1, 0); }
             if (k == 3) { kfmt(o->name, 12, "DRUMS CH"); kint(o->val, cs.ch_drums + 1, 0); }
             break;
+#if CF_BLE
+        case 5:
+            if (k == 0) {
+                static const char *const targets[] = {"WIDI Bud", "OP-1 field", "Off"};
+                kfmt(o->name, 12, "TARGET"); kfmt(o->val, 14, targets[cs.bt_target % 3u]);
+            }
+            if (k == 1) { kfmt(o->name, 12, "LINK"); kfmt(o->val, 14, cf_ble_status()); o->dis = 1; }
+            break;
+#endif
         case 4: /* Reset: K4 the first step */
             if (k == 3) {
                 kfmt(o->name, 12, "ACTION");
@@ -575,6 +584,11 @@ static void ui_knob_turn(int k, int d)
                 cs.ch_drums = (uint8_t)clampi(cs.ch_drums + d, 0, 15);
             cf_send_config();
             break;
+#if CF_BLE
+        case 5:
+            if (k == 0) cs.bt_target = (uint8_t)clampi(cs.bt_target + (d > 0 ? 1 : -1), 0, 2);
+            break;
+#endif
         case 4:                                  /* Reset: K4 arms it (the steps after: SAVE) */
             if (k == 3 && !cfr.go) {
                 cfr.arm = (uint8_t)(d > 0);
@@ -633,7 +647,7 @@ static void ui_say(const char *a, const char *b)
 static uint32_t screen_pages(uint32_t scr)
 {
     if (scr == SCR_GLO)
-        return 5u;                               /* Display, MIDI, Channels, Play, Reset */
+        return 5u + CF_BLE;                      /* + Bluetooth on radio builds */
     if (scr == SCR_ENV)
         return 3u;                               /* chord + bass, chord, bass */
     if (scr == SCR_ARP)

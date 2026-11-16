@@ -1,6 +1,6 @@
 # CoralFlower Bluetooth MIDI fork
 
-This is an experimental native BLE-MIDI peripheral build for the FM-1, based on
+This is an experimental native BLE-MIDI build for the FM-1, based on
 CoralFlower 0.7.1. On 2026-11-15 it was flashed onto a physical FM-1 and
 exchanged MIDI in both directions with a Windows Bluetooth client. WIDI Bud Pro
 group reconnection also passed a subsequent software-reboot test. It remains an experimental build.
@@ -18,8 +18,31 @@ group reconnection also passed a subsequent software-reboot test. It remains an 
 - Overflow/disconnection releases held notes. Wireless SysEx is excluded from the
   input router, so it cannot invoke the USB firmware updater.
 - Bluetooth stays off in safe mode, and the baseband is stopped before USB updates.
-- No central role, Bluetooth audio, saved security bonds, or encrypted pairing in
+- No Bluetooth audio, saved security bonds, or encrypted pairing in
   this build. Hosts that insist on pairing/encryption will require further work.
+
+## Switch between WIDI Bud Pro and OP-1 field (0.7.2-btdev)
+
+Press **GLO**, turn **SELECT** to **Bluetooth**, then turn **Knob 1 (TARGET)**:
+
+- **WIDI Bud**: peripheral mode, preserving the saved group on the Bud.
+- **OP-1 field**: scan for a BLE-MIDI advertiser named `OP-1` or `OP-1 ...`,
+  connect as central, discover MIDI and subscribe. Enable advertising in the
+  OP-1 COM screen with the blue encoder button. This supports one nearby OP-1;
+  it does not present a picker for multiple OP-1 units.
+- **Off**: stop the radio link.
+
+**LINK** shows Waiting, Searching, Connecting, Connected or Needs pairing.
+The target is saved in an existing settings padding byte, preserving record size
+and the previous sounds/patterns. The two targets are exclusive: OP-1 mode stops
+advertising so the Bud cannot take the link. Target switches send pedal-off and
+all-notes-off before disconnecting. USB MIDI remains available in every mode.
+The OP-1 connection retries after link loss; security-required peers are not
+supported by this minimal central build. Selecting a different target does not
+change MIDI channels: chord/bass/layer/drums still use GLO > Channels.
+
+USB serial diagnostics: `bt` reads link state and MIDI counters; `bt widi`,
+`bt op1`, `bt off` select and save the same target as the panel.
 
 ## WIDI Bud Pro: automatic connection
 
@@ -52,12 +75,12 @@ Use Linux x86-64 (WSL works), Python 3 with Pillow and fontTools, and the JieLi
 toolchain described in the main README. No full JieLi Bluetooth SDK is required.
 
 ```sh
-./build.sh --ble --release 0.7.1-btdev
-./build.sh --release 0.7.1-usbdev  # same instrument without the radio
+./build.sh --ble --release 0.7.2-btdev
+./build.sh --release 0.7.2-usbdev  # same instrument without the radio
 ```
 
-The outputs are `build/coralflower-0.7.1-btdev.fwsc` and
-`build/coralflower-0.7.1-usbdev.fwsc`. The original boot stub and loader remain
+The outputs are `build/coralflower-0.7.2-btdev.fwsc` and
+`build/coralflower-0.7.2-usbdev.fwsc`. The original boot stub and loader remain
 unchanged. Keep the USB-only build available while testing.
 
 ## Flasher
@@ -85,7 +108,7 @@ Source versions and licensing: [BLUETOOTH-SOURCES.md](BLUETOOTH-SOURCES.md).
 
 ## Hardware observations â€” 2026-11-15
 
-- Installed `0.7.1-btdev` using the USB command-line installer; running firmware
+- Installed `0.7.2-btdev` using the USB command-line installer; running firmware
   identity confirmed after the update. The browser flasher was not used for this test.
 - Before/after backup object payloads matched exactly (only firmware label and
   backup creation time differed). Private backups remain local.
@@ -112,3 +135,22 @@ produced the FM-1's expected transposed note-on/off replies, both before and aft
 the reboot. FM-1 was not connected by USB during this test. No firmware change was
 needed. Private configuration backups and raw logs remain local under build/.
 Physical power-cycle, both startup orders and prolonged load remain untested.
+
+### OP-1 target selector tests, 2026-11-16
+
+Both Bluetooth and USB-only 0.7.2 builds compiled, with unchanged recovery stub.
+Routing, link-loss and target-switch host tests passed. The target-switch test
+covers the note-release grace period, peripheral/central/off transitions, excluding
+unrelated named devices, address type, connection timeout and cancelled switches.
+On hardware, direct OP-1 service discovery/subscription reached MIDI-ready; switching
+to WIDI peripheral mode reached MIDI-ready again. After switching back, OP-1 no
+longer appeared in a PC BLE scan, so advertising had to be checked/re-enabled.
+Do not treat the initial link as proof of unattended OP-1 reconnection.
+Backup objects for sounds and patterns matched before/after installation; only
+the target byte and its settings checksum changed.
+
+After advertising was re-enabled, the OP-1 connected again and the FM-1's BLE
+counters recorded MIDI in both directions (RX 7, TX 7 while the user played).
+The installed unit was left in OP-1 mode. Audible output was not independently
+measured. The OP-1 may require advertising to be enabled again when returning
+from WIDI mode; the FM-1 cannot connect to a peer that is not advertising.

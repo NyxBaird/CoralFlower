@@ -299,6 +299,9 @@ static void fm1_main(void)
         uint32_t m = fm1_ms;
         fm1_wdt_feed();
         usb_retry(fm1_ms);
+#if CF_BLE
+        cf_ble_target_poll(cs.bt_target);
+#endif
 #if FELUCCA_UAC
         if (ua_off_apply(fm1_ms))                       /* Options > USB Record: the host re-reads (a second off
                                                          * the bus; the setting is saved as any other, cr_settings.c) */
