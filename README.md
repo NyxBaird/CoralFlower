@@ -26,7 +26,7 @@ before you install anything.
 
 ## Bluetooth target selector (this fork)
 
-The `0.7.2-btdev` build adds **GLO > Bluetooth > TARGET**: **WIDI Bud**,
+The `0.7.3-btdev` build adds **GLO > Bluetooth > TARGET**: **WIDI Bud**,
 **OP-1 field**, or **Off**. The choice is saved. Enable OP-1 advertising in its
 COM screen before selecting it. See [Bluetooth setup and hardware test limits](docs/BLUETOOTH.md).
 

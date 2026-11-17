@@ -13,14 +13,14 @@ struct ble_scan_tab { struct ble_found e[8]; uint32_t reports; };
 struct ble_peer { uint8_t addr[6],addr_rand; };
 static uint8_t cb_started=1,cb_ready,cb_panic_pos,cb_panic,cb_lost;
 static uint32_t fm1_ms,cb_tr,cb_tw;
-static int enabled,scanning,connected,state,fail,held,attempts;
+static int enabled,scanning,connected,state,fail,held,attempts,forced_closes;
 static struct ble_peer selected;
 static void fm1_ble_irqs_hold(int x){held=x;}
 static int ble_central_fail(void){return fail;}
 static int ble_central_state(void){return state;}
 static void ble_enable(int x){assert(held);enabled=x;}
 static int ble_connected(void){return connected;}
-static void ll_close(int x){(void)x;assert(held);connected=state=0;}
+static void ll_close(int x){(void)x;assert(held);connected=state=0;forced_closes++;}
 static void ble_ll_scan(int x){assert(held);scanning=x;}
 static void ble_scan_clear(struct ble_scan_tab *t){memset(t,0,sizeof *t);}
 static void ble_scan_age(struct ble_scan_tab *t,uint32_t n){(void)t;(void)n;}
@@ -36,7 +36,10 @@ int main(void){
  cb_ready=connected=1;cb_tw=5;
  cf_ble_target_poll(1);assert(cb_switching&&cb_panic&&connected);
  fm1_ms=249;cf_ble_target_poll(1);assert(connected);
- fm1_ms=250;cf_ble_target_poll(1);assert(!connected&&enabled&&scanning&&cb_lost&&cb_tr==5);
+ fm1_ms=250;cf_ble_target_poll(1);assert(connected&&!enabled&&cb_switching==2&&!forced_closes);
+ fm1_ms=400;cf_ble_target_poll(1);assert(connected&&!forced_closes);
+ connected=cb_ready=state=0; /* radio acknowledged LL_TERMINATE_IND */
+ cf_ble_target_poll(1);assert(enabled&&scanning&&cb_lost&&cb_tr==5&&!forced_closes);
  struct ble_found*f=&cb_scan.e[0];f->used=f->midi=1;strcpy(f->name,"WIDI Bud Pro");f->seen_ms=2000;
  fm1_ms=2000;cf_ble_target_poll(1);assert(!attempts);
  strcpy(f->name,"OP-1");f->addr[0]=42;f->addr_rand=1;
@@ -46,5 +49,16 @@ int main(void){
  cf_ble_target_poll(0);assert(enabled&&!scanning);
  cb_ready=1;cf_ble_target_poll(1);assert(cb_switching);
  cf_ble_target_poll(0);assert(!cb_switching);
- puts("BLE target: WIDI/OP-1/off, panic grace, name filter, address type, timeout and cancelled switch passed");
+ cb_ready=connected=1;cf_ble_target_poll(1);
+ fm1_ms+=250;cf_ble_target_poll(1);assert(cb_switching==2&&connected);
+ cf_ble_target_poll(0);assert(cb_switching==2&&!enabled); /* reverting mid-close still waits */
+ fm1_ms+=5999;cf_ble_target_poll(0);assert(connected&&!forced_closes);
+ fm1_ms++;cf_ble_target_poll(0);assert(!connected&&forced_closes==1&&enabled&&!scanning);
+ cb_ready=0;cb_last_valid=0;cb_peer_pending=0;state=0;
+ cf_ble_target_poll(1);fm1_ms+=1600;
+ f=&cb_scan.e[0];f->used=f->midi=1;strcpy(f->name,"OP-1");f->addr[0]=77;f->addr_rand=1;f->seen_ms=fm1_ms;
+ cf_ble_target_poll(1);cb_ready=1;cf_ble_target_poll(1);assert(cb_last_valid);
+ cb_ready=0;state=0;ble_scan_clear(&cb_scan);fm1_ms+=1600;
+ int prior=attempts;cf_ble_target_poll(1);assert(attempts==prior+1&&selected.addr[0]==77);
+ puts("BLE target: WIDI/OP-1/off, panic grace, acknowledged disconnect, stalled disconnect recovery, name filter, address type, timeout and cancelled switch passed");
 }

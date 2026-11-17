@@ -21,7 +21,7 @@ group reconnection also passed a subsequent software-reboot test. It remains an 
 - No Bluetooth audio, saved security bonds, or encrypted pairing in
   this build. Hosts that insist on pairing/encryption will require further work.
 
-## Switch between WIDI Bud Pro and OP-1 field (0.7.2-btdev)
+## Switch between WIDI Bud Pro and OP-1 field (0.7.3-btdev)
 
 Press **GLO**, turn **SELECT** to **Bluetooth**, then turn **Knob 1 (TARGET)**:
 
@@ -75,12 +75,12 @@ Use Linux x86-64 (WSL works), Python 3 with Pillow and fontTools, and the JieLi
 toolchain described in the main README. No full JieLi Bluetooth SDK is required.
 
 ```sh
-./build.sh --ble --release 0.7.2-btdev
-./build.sh --release 0.7.2-usbdev  # same instrument without the radio
+./build.sh --ble --release 0.7.3-btdev
+./build.sh --release 0.7.3-usbdev  # same instrument without the radio
 ```
 
-The outputs are `build/coralflower-0.7.2-btdev.fwsc` and
-`build/coralflower-0.7.2-usbdev.fwsc`. The original boot stub and loader remain
+The outputs are `build/coralflower-0.7.3-btdev.fwsc` and
+`build/coralflower-0.7.3-usbdev.fwsc`. The original boot stub and loader remain
 unchanged. Keep the USB-only build available while testing.
 
 ## Flasher
@@ -108,7 +108,7 @@ Source versions and licensing: [BLUETOOTH-SOURCES.md](BLUETOOTH-SOURCES.md).
 
 ## Hardware observations â€” 2026-11-15
 
-- Installed `0.7.2-btdev` using the USB command-line installer; running firmware
+- Installed `0.7.3-btdev` using the USB command-line installer; running firmware
   identity confirmed after the update. The browser flasher was not used for this test.
 - Before/after backup object payloads matched exactly (only firmware label and
   backup creation time differed). Private backups remain local.
@@ -154,3 +154,25 @@ counters recorded MIDI in both directions (RX 7, TX 7 while the user played).
 The installed unit was left in OP-1 mode. Audible output was not independently
 measured. The OP-1 may require advertising to be enabled again when returning
 from WIDI mode; the FM-1 cannot connect to a peer that is not advertising.
+
+### Reconnection fixes, 0.7.3-btdev
+
+Target switches now allow the queued LL_TERMINATE_IND to be sent and acknowledged
+before stopping the radio, with a bounded fallback if the link is unresponsive.
+Previously the immediate local teardown could prevent the peer hearing it.
+After a successful OP-1 MIDI setup, the current session also remembers its address
+and type and retries it without requiring another name/service scan result. Fresh
+matching discovery still takes precedence, to handle changed addresses. This cache
+is RAM-only; a cold boot discovers the OP-1 again.
+
+The clean-disconnect-only hardware test still failed to reconnect within 25 seconds,
+and a concurrent Windows BLE scan did not list OP-1. This establishes that a clean
+disconnect alone does not solve unattended reconnection on the tested OP-1.
+
+The remembered-address build was then installed and connected successfully after
+one manual enable of OP-1 advertising. With the OP-1 controls untouched, switching
+Off and back to OP-1 did not reconnect within 25 seconds (central state remained
+Connecting, MIDI-ready false). Thus neither clean termination nor known-address
+retries removed the manual advertising requirement in this hardware test. The
+unit remains configured for OP-1 and keeps retrying; no automatic-reconnection
+success is claimed. The manufacturer controls the OP-1 advertising behavior.
