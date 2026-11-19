@@ -115,7 +115,7 @@ static void cfs_sanitize(cf_set_t *s)
     if (s->retrig >= CF_NRT) s->retrig = d.retrig;
     if (s->clock_in > 2u) s->clock_in = 0;      /* (0 Off, 1 In, 2 Out) */
     s->boot_sound = s->boot_sound != 0;
-    if (s->bt_target > 2u) s->bt_target = 0;
+    if (s->bt_target > 3u) s->bt_target = 0;
     if (!(s->resume & CF_RESUME_ON))
         s->resume = 0;
     if (s->arp.mode >= CF_ARP_NMODES || s->arp.oct < 1u || s->arp.oct > 4u || s->arp.rate >= CF_ARP_NRATES ||

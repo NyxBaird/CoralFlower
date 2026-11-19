@@ -427,6 +427,7 @@ static void con_exec(const char *p)
 #if CF_BLE
     else if (con_word(&p, "bt")) {
         if (con_word(&p, "widi")) cs.bt_target = 0;
+        else if (con_word(&p, "core")) cs.bt_target = 3;
         else if (con_word(&p, "op1")) cs.bt_target = 1;
         else if (con_word(&p, "off")) cs.bt_target = 2;
         cf_ble_target_poll(cs.bt_target);

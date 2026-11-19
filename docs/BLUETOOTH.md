@@ -21,11 +21,15 @@ group reconnection also passed a subsequent software-reboot test. It remains an 
 - No Bluetooth audio, saved security bonds, or encrypted pairing in
   this build. Hosts that insist on pairing/encryption will require further work.
 
-## Switch between WIDI Bud Pro and OP-1 field (0.7.3-btdev)
+## Bluetooth target selector (0.7.4-btdev)
 
 Press **GLO**, turn **SELECT** to **Bluetooth**, then turn **Knob 1 (TARGET)**:
 
 - **WIDI Bud**: peripheral mode, preserving the saved group on the Bud.
+- **WIDI Core**: connect directly as central to a BLE-MIDI device advertising as
+  `WIDI Core` or `WIDI Core ...`. The Core must be available as a peripheral;
+  disconnect its Bud/other central first. This does not change its saved settings.
+  A renamed Core or CoreX is not matched by this target.
 - **OP-1 field**: scan for a BLE-MIDI advertiser named `OP-1` or `OP-1 ...`,
   connect as central, discover MIDI and subscribe. Enable advertising in the
   OP-1 COM screen with the blue encoder button. This supports one nearby OP-1;
@@ -34,7 +38,7 @@ Press **GLO**, turn **SELECT** to **Bluetooth**, then turn **Knob 1 (TARGET)**:
 
 **LINK** shows Waiting, Searching, Connecting, Connected or Needs pairing.
 The target is saved in an existing settings padding byte, preserving record size
-and the previous sounds/patterns. The two targets are exclusive: OP-1 mode stops
+and the previous sounds/patterns. The targets are exclusive: OP-1 mode stops
 advertising so the Bud cannot take the link. Target switches send pedal-off and
 all-notes-off before disconnecting. USB MIDI remains available in every mode.
 The OP-1 connection retries after link loss; security-required peers are not
@@ -42,7 +46,7 @@ supported by this minimal central build. Selecting a different target does not
 change MIDI channels: chord/bass/layer/drums still use GLO > Channels.
 
 USB serial diagnostics: `bt` reads link state and MIDI counters; `bt widi`,
-`bt op1`, `bt off` select and save the same target as the panel.
+`bt core`, `bt op1`, `bt off` select and save the same target as the panel.
 
 ## WIDI Bud Pro: automatic connection
 
@@ -75,12 +79,12 @@ Use Linux x86-64 (WSL works), Python 3 with Pillow and fontTools, and the JieLi
 toolchain described in the main README. No full JieLi Bluetooth SDK is required.
 
 ```sh
-./build.sh --ble --release 0.7.3-btdev
-./build.sh --release 0.7.3-usbdev  # same instrument without the radio
+./build.sh --ble --release 0.7.4-btdev
+./build.sh --release 0.7.4-usbdev  # same instrument without the radio
 ```
 
-The outputs are `build/coralflower-0.7.3-btdev.fwsc` and
-`build/coralflower-0.7.3-usbdev.fwsc`. The original boot stub and loader remain
+The outputs are `build/coralflower-0.7.4-btdev.fwsc` and
+`build/coralflower-0.7.4-usbdev.fwsc`. The original boot stub and loader remain
 unchanged. Keep the USB-only build available while testing.
 
 ## Flasher
@@ -176,3 +180,13 @@ Connecting, MIDI-ready false). Thus neither clean termination nor known-address
 retries removed the manual advertising requirement in this hardware test. The
 unit remains configured for OP-1 and keeps retrying; no automatic-reconnection
 success is claimed. The manufacturer controls the OP-1 advertising behavior.
+
+### WIDI Core target, 2026-11-19
+
+Added Core as stored target ID 3, preserving Bud=0, OP-1=1 and Off=2.
+The panel order is Bud, Core, OP-1, Off. Settings remain 188 bytes. Direct Core
+connections use the existing central MIDI implementation, with the advertiser's
+address type. Reconnect caches are tagged by target so switching cannot retry a
+previous OP-1 address in Core mode or a Core address in OP-1 mode. Tests exercise
+Core name filtering, discovery, reconnect and cross-target cache isolation.
+Live Core connection testing is pending hardware availability.

@@ -34,15 +34,15 @@ jobs:
           build/host/codec
       - name: Build Bluetooth and USB-only packages
         run: |
-          sh build.sh --ble --release 0.7.3-btdev
-          sh build.sh --release 0.7.3-usbdev
+          sh build.sh --ble --release 0.7.4-btdev
+          sh build.sh --release 0.7.4-usbdev
       - name: Flasher validation
         run: |
-          node web/flasher/test.mjs build/coralflower-0.7.3-btdev.fwsc
+          node web/flasher/test.mjs build/coralflower-0.7.4-btdev.fwsc
           node web/test_installer.mjs
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: experimental-firmware-not-hardware-validated
           path: |
-            build/release-0.7.3-btdev/
-            build/release-0.7.3-usbdev/
+            build/release-0.7.4-btdev/
+            build/release-0.7.4-usbdev/

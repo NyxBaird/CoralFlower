@@ -364,8 +364,8 @@ static void ui_knob_info(int k, cf_knob_t *o)
 #if CF_BLE
         case 5:
             if (k == 0) {
-                static const char *const targets[] = {"WIDI Bud", "OP-1 field", "Off"};
-                kfmt(o->name, 12, "TARGET"); kfmt(o->val, 14, targets[cs.bt_target % 3u]);
+                static const char *const targets[] = {"WIDI Bud", "OP-1 field", "Off", "WIDI Core"};
+                kfmt(o->name, 12, "TARGET"); kfmt(o->val, 14, targets[cs.bt_target % 4u]);
             }
             if (k == 1) { kfmt(o->name, 12, "LINK"); kfmt(o->val, 14, cf_ble_status()); o->dis = 1; }
             break;
@@ -586,7 +586,12 @@ static void ui_knob_turn(int k, int d)
             break;
 #if CF_BLE
         case 5:
-            if (k == 0) cs.bt_target = (uint8_t)clampi(cs.bt_target + (d > 0 ? 1 : -1), 0, 2);
+            if (k == 0) {
+                static const uint8_t order[] = {0, 3, 1, 2}; /* preserve stored IDs */
+                int at = 0;
+                while (at < 3 && order[at] != cs.bt_target) at++;
+                cs.bt_target = order[clampi(at + (d > 0 ? 1 : -1), 0, 3)];
+            }
             break;
 #endif
         case 4:                                  /* Reset: K4 arms it (the steps after: SAVE) */

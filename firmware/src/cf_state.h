@@ -82,7 +82,7 @@ typedef struct {
     uint8_t boot_sound;          /* GLO > Display > BOOT SOUND: the chime with the intro */
     uint8_t level_chord, level_layer, level_drums;   /* the parts' P_LEVEL (the sequencer's tracks, K1; the bass's:
                                                       * bass_level) */
-    uint8_t bt_target;          /* padding byte 181: 0 WIDI, 1 OP-1, 2 Off */
+    uint8_t bt_target;          /* padding byte 181: 0 WIDI Bud, 1 OP-1, 2 Off, 3 WIDI Core */
     uint16_t snd_layer;          /* the LAYER's sound (part 2): its index in the chord sounds' row; 0xFFFF: the default */
     uint8_t ch_layer, ch_drums;  /* GLO > Channels: the sequencer's LAYER and DRUMS out on MIDI, 0..15 */
     uint8_t seq_hint;            /* the SEQUENCER's hints shown once (0.4, cf_sequi.c SQH_*): bit 0 after the first

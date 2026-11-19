@@ -60,5 +60,17 @@ int main(void){
  cf_ble_target_poll(1);cb_ready=1;cf_ble_target_poll(1);assert(cb_last_valid);
  cb_ready=0;state=0;ble_scan_clear(&cb_scan);fm1_ms+=1600;
  int prior=attempts;cf_ble_target_poll(1);assert(attempts==prior+1&&selected.addr[0]==77);
- puts("BLE target: WIDI/OP-1/off, panic grace, acknowledged disconnect, stalled disconnect recovery, name filter, address type, timeout and cancelled switch passed");
+ cb_ready=0;state=0;cf_ble_target_poll(3);fm1_ms+=1600;
+ prior=attempts;cf_ble_target_poll(3);assert(attempts==prior); /* no cached OP-1 in Core mode */
+ f=&cb_scan.e[0];f->used=f->midi=1;strcpy(f->name,"OP-1");f->seen_ms=fm1_ms;
+ cf_ble_target_poll(3);assert(attempts==prior);
+ strcpy(f->name,"WIDI Core");f->addr[0]=99;f->addr_rand=0;
+ cf_ble_target_poll(3);assert(attempts==prior+1&&selected.addr[0]==99&&!selected.addr_rand);
+ cb_ready=1;cf_ble_target_poll(3);assert(cb_last_valid&&cb_last_target==3);
+ cb_ready=0;state=0;ble_scan_clear(&cb_scan);fm1_ms+=1600;
+ cf_ble_target_poll(3);assert(attempts==prior+2&&selected.addr[0]==99);
+ state=0;cf_ble_target_poll(1);fm1_ms+=1600;prior=attempts;cf_ble_target_poll(1);assert(attempts==prior);
+ assert(cb_core_name("WIDI Core")&&cb_core_name("WIDI Core 1234"));
+ assert(!cb_core_name("WIDI CoreX")&&!cb_core_name("WIDI Bud Pro")&&!cb_core_name("W"));
+ puts("BLE target: Bud/Core/OP-1/off, isolated peer caches, panic grace, acknowledged disconnect, stalled disconnect recovery, name filter, address type, timeout and cancelled switch passed");
 }
