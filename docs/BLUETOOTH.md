@@ -189,4 +189,9 @@ connections use the existing central MIDI implementation, with the advertiser's
 address type. Reconnect caches are tagged by target so switching cannot retry a
 previous OP-1 address in Core mode or a Core address in OP-1 mode. Tests exercise
 Core name filtering, discovery, reconnect and cross-target cache isolation.
-Live Core connection testing is pending hardware availability.
+0.7.4-btdev was subsequently flashed and its running identity verified. Core target
+ID 3 was selected and saved. Before/after backups differed only in that target
+byte and the settings checksum; sounds and patterns matched. The FM-1 scanned but
+remained Searching, and independent Windows scans did not see the known Core
+address or a BLE-MIDI Core advertisement. A live Core connection and MIDI exchange
+remain unverified pending an available advertising Core.
